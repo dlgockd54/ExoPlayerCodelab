@@ -1,4 +1,4 @@
-package com.example.exoplayercodelab
+package com.example.toyexoplayer
 
 import android.net.Uri
 import android.os.Build
@@ -12,8 +12,6 @@ import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.*
 import kotlinx.android.synthetic.main.activity_player.*
-import java.io.IOException
-import java.lang.RuntimeException
 
 class PlayerActivity : AppCompatActivity() {
     companion object {

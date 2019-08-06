@@ -1,4 +1,4 @@
-package com.example.exoplayercodelab
+package com.example.toyexoplayer
 
 import android.util.Log
 import com.google.android.exoplayer2.ExoPlaybackException

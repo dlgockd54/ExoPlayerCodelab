@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ExoPlayerCodelab</string>
+    <string name="app_name">ToyExoPlayer</string>
     <string name="media_url_mp3">http://storage.googleapis.com/exoplayer-test-media-0/play.mp3</string>
     <string name="sample_url_mp4">http://www.ithinknext.com/mydata/board/files/F201308021823010.mp4</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.exoplayercodelab
+package com.example.toyexoplayer
 
 import androidx.test.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4

@@ -1,4 +1,4 @@
-package com.example.exoplayercodelab
+package com.example.toyexoplayer
 
 import org.junit.Test
 
