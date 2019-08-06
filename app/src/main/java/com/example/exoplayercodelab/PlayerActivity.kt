@@ -65,7 +65,7 @@ class PlayerActivity : AppCompatActivity() {
         ).apply {
             playWhenReady = mPlayWhenReady
             seekTo(mCurrentWindowIndex, mPlaybackPosition)
-            prepare(buildMediaSource(Uri.parse(getString(R.string.media_url_mp3))),
+            prepare(buildMediaSource(Uri.parse(getString(R.string.sample_url_mp4))),
                 false,
                 false)
         }
