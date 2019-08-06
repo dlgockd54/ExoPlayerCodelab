@@ -81,6 +81,7 @@ class PlayerActivity : AppCompatActivity() {
             mPlaybackPosition = it.currentPosition
             mPlayWhenReady = it.playWhenReady
             mCurrentWindowIndex = it.currentWindowIndex
+            it.removeListener(mPlayerEventListener)
             it.release()
         }
 
