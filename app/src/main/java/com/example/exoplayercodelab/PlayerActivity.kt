@@ -13,7 +13,7 @@ import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
+import com.google.android.exoplayer2.upstream.*
 import kotlinx.android.synthetic.main.activity_player.*
 
 class PlayerActivity : AppCompatActivity() {
@@ -86,10 +86,23 @@ class PlayerActivity : AppCompatActivity() {
         mPlayer = null
     }
 
-    private fun buildMediaSource(uri: Uri): MediaSource =
-        ExtractorMediaSource.Factory(
-            DefaultHttpDataSourceFactory("exoplayer-codelab")
+    private fun buildMediaSource(uri: Uri): MediaSource {
+        return ExtractorMediaSource.Factory(
+                DefaultHttpDataSourceFactory("exoplayer-codelab", object : TransferListener<DataSource> {
+                    override fun onTransferStart(source: DataSource?, dataSpec: DataSpec?) {
+                        Log.d(TAG, "onTransferStart()")
+                    }
+
+                    override fun onTransferEnd(source: DataSource?) {
+                        Log.d(TAG, "onTransferEnd()")
+                    }
+
+                    override fun onBytesTransferred(source: DataSource?, bytesTransferred: Int) {
+                        Log.d(TAG, "onByteTransferred()")
+                    }
+                })
         ).createMediaSource(uri)
+    }
 
     private fun hideSystemUi() {
         with(pv_video) {
