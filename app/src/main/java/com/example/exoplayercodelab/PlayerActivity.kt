@@ -6,15 +6,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import com.google.android.exoplayer2.DefaultLoadControl
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.*
 import kotlinx.android.synthetic.main.activity_player.*
+import java.io.IOException
+import java.lang.RuntimeException
 
 class PlayerActivity : AppCompatActivity() {
     companion object {
@@ -25,6 +24,7 @@ class PlayerActivity : AppCompatActivity() {
     private var mPlayWhenReady: Boolean = false
     private var mPlaybackPosition: Long = 0L
     private var mCurrentWindowIndex: Int = 0
+    private val mPlayerEventListener: DefaultEventListenerImpl = DefaultEventListenerImpl()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate()")
@@ -63,6 +63,7 @@ class PlayerActivity : AppCompatActivity() {
             DefaultTrackSelector(),
             DefaultLoadControl()
         ).apply {
+            addListener(mPlayerEventListener)
             playWhenReady = mPlayWhenReady
             seekTo(mCurrentWindowIndex, mPlaybackPosition)
             prepare(buildMediaSource(Uri.parse(getString(R.string.sample_url_mp4))),
