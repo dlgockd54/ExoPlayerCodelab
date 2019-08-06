@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ExoPlayerCodelab</string>
+    <string name="media_url_mp3">http://storage.googleapis.com/exoplayer-test-media-0/play.mp3</string>
 </resources>
