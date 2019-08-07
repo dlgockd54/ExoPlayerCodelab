@@ -52,22 +52,7 @@ class PlayerActivity : AppCompatActivity() {
                 visibility = if (visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
                 if (visibility == View.VISIBLE) {
-                    mCompositeDisposable.add(
-                        mPlaylistViewModel.getPlaylistSingle()
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe({
-                                Log.d(TAG, "onSuccess()")
-
-                                with(mPlaylistAdapter) {
-                                    mPlayList.clear()
-                                    mPlayList.addAll((it))
-                                    notifyDataSetChanged()
-                                }
-                            }, {
-                                Log.d(TAG, "onError()")
-                            })
-                    )
+                    pullPlayList()
                 } else {
                     with(mPlaylistAdapter) {
                         mPlayList.clear()
@@ -141,6 +126,25 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         mPlayer = null
+    }
+
+    private fun pullPlayList() {
+        mCompositeDisposable.add(
+            mPlaylistViewModel.getPlaylistSingle()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    Log.d(TAG, "onSuccess()")
+
+                    with(mPlaylistAdapter) {
+                        mPlayList.clear()
+                        mPlayList.addAll((it))
+                        notifyDataSetChanged()
+                    }
+                }, {
+                    Log.d(TAG, "onError()")
+                })
+        )
     }
 
     private fun buildMediaSource(uri: Uri): MediaSource {
