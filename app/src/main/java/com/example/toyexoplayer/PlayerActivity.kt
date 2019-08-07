@@ -12,6 +12,7 @@ import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.*
 import kotlinx.android.synthetic.main.activity_player.*
+import kotlinx.android.synthetic.main.playback_control_with_playlist.*
 
 class PlayerActivity : AppCompatActivity() {
     companion object {
@@ -29,6 +30,10 @@ class PlayerActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
+
+        ib_playlist.setOnClickListener {
+
+        }
     }
 
     override fun onStart() {
