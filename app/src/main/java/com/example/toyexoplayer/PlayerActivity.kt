@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.exoplayer2.*
@@ -30,7 +31,6 @@ class PlayerActivity : AppCompatActivity() {
     private var mCurrentWindowIndex: Int = 0
     private val mPlayerEventListener: DefaultEventListenerImpl = DefaultEventListenerImpl()
     private val mPlaylistAdapter: PlaylistAdapter = PlaylistAdapter(mutableListOf())
-    private val mCompositeDisposable: CompositeDisposable = CompositeDisposable()
 
     private lateinit var mPlaylistViewModel: PlaylistViewModel
 
@@ -41,6 +41,15 @@ class PlayerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_player)
 
         mPlaylistViewModel = ViewModelProviders.of(this@PlayerActivity).get(PlaylistViewModel::class.java)
+            .apply {
+                mPlayListLiveData.observe(this@PlayerActivity, Observer {
+                    with(mPlaylistAdapter) {
+                        mPlayList.clear()
+                        mPlayList.addAll(it)
+                        notifyDataSetChanged()
+                    }
+                })
+            }
 
         with(rv_playlist) {
             adapter = mPlaylistAdapter
@@ -129,22 +138,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun pullPlayList() {
-        mCompositeDisposable.add(
-            mPlaylistViewModel.getPlaylistSingle()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    Log.d(TAG, "onSuccess()")
-
-                    with(mPlaylistAdapter) {
-                        mPlayList.clear()
-                        mPlayList.addAll((it))
-                        notifyDataSetChanged()
-                    }
-                }, {
-                    Log.d(TAG, "onError()")
-                })
-        )
+        mPlaylistViewModel.pullPlaylist()
     }
 
     private fun buildMediaSource(uri: Uri): MediaSource {
@@ -193,11 +187,5 @@ class PlayerActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             releasePlayer()
         }
-    }
-
-    override fun onDestroy() {
-        mCompositeDisposable.clear()
-
-        super.onDestroy()
     }
 }
