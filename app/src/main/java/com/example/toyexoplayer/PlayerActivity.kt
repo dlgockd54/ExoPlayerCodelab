@@ -68,7 +68,22 @@ class PlayerActivity : AppCompatActivity() {
                                 Log.d(TAG, "onError()")
                             })
                     )
+                } else {
+                    with(mPlaylistAdapter) {
+                        mPlayList.clear()
+                        notifyDataSetChanged()
+                    }
                 }
+            }
+        }
+
+        pv_video.setControllerVisibilityListener {
+            if (it == View.VISIBLE) {
+                if (mPlaylistAdapter.mPlayList.size > 0) {
+                    rv_playlist.visibility = View.VISIBLE
+                }
+            } else {
+                rv_playlist.visibility = View.GONE
             }
         }
     }
