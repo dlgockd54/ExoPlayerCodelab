@@ -6,11 +6,16 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.*
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_player.*
 import kotlinx.android.synthetic.main.playback_control_with_playlist.*
 
@@ -24,6 +29,10 @@ class PlayerActivity : AppCompatActivity() {
     private var mPlaybackPosition: Long = 0L
     private var mCurrentWindowIndex: Int = 0
     private val mPlayerEventListener: DefaultEventListenerImpl = DefaultEventListenerImpl()
+    private val mPlaylistAdapter: PlaylistAdapter = PlaylistAdapter(mutableListOf())
+    private val mCompositeDisposable: CompositeDisposable = CompositeDisposable()
+
+    private lateinit var mPlaylistViewModel: PlaylistViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate()")
@@ -31,8 +40,36 @@ class PlayerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
 
-        ib_playlist.setOnClickListener {
+        mPlaylistViewModel = ViewModelProviders.of(this@PlayerActivity).get(PlaylistViewModel::class.java)
 
+        with(rv_playlist) {
+            adapter = mPlaylistAdapter
+            layoutManager = LinearLayoutManager(this@PlayerActivity)
+        }
+
+        ib_playlist.setOnClickListener {
+            with(rv_playlist) {
+                visibility = if (visibility == View.VISIBLE) View.GONE else View.VISIBLE
+
+                if (visibility == View.VISIBLE) {
+                    mCompositeDisposable.add(
+                        mPlaylistViewModel.getPlaylistSingle()
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({
+                                Log.d(TAG, "onSuccess()")
+
+                                with(mPlaylistAdapter) {
+                                    mPlayList.clear()
+                                    mPlayList.addAll((it))
+                                    notifyDataSetChanged()
+                                }
+                            }, {
+                                Log.d(TAG, "onError()")
+                            })
+                    )
+                }
+            }
         }
     }
 
@@ -137,5 +174,11 @@ class PlayerActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             releasePlayer()
         }
+    }
+
+    override fun onDestroy() {
+        mCompositeDisposable.clear()
+
+        super.onDestroy()
     }
 }
