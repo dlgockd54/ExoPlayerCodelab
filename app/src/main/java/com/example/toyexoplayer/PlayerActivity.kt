@@ -1,5 +1,6 @@
 package com.example.toyexoplayer
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -30,7 +31,8 @@ class PlayerActivity : AppCompatActivity() {
     private var mPlaybackPosition: Long = 0L
     private var mCurrentWindowIndex: Int = 0
     private val mPlayerEventListener: DefaultEventListenerImpl = DefaultEventListenerImpl()
-    private val mPlaylistAdapter: PlaylistAdapter = PlaylistAdapter(mutableListOf())
+    private val mPlaylistAdapter: PlaylistAdapter = PlaylistAdapter(this@PlayerActivity, mutableListOf())
+    private lateinit var mContentsUriStr: String
 
     private lateinit var mPlaylistViewModel: PlaylistViewModel
 
@@ -40,6 +42,7 @@ class PlayerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
 
+        mContentsUriStr = intent.getStringExtra(PlaylistAdapter.URI_KEY)
         mPlaylistViewModel = ViewModelProviders.of(this@PlayerActivity).get(PlaylistViewModel::class.java)
             .apply {
                 mPlayListLiveData.observe(this@PlayerActivity, Observer {
@@ -82,14 +85,18 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStart() {
-        Log.d(TAG, "onStart()")
+    override fun onNewIntent(intent: Intent?) {
+        Log.d(TAG, "onNewIntent()")
 
-        super.onStart()
+        super.onNewIntent(intent)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            initializePlayer()
+        intent?.let {
+            mContentsUriStr = it.getStringExtra(PlaylistAdapter.URI_KEY)
         }
+
+        mPlayWhenReady = false
+        mPlaybackPosition = 0L
+        mCurrentWindowIndex = 0
     }
 
     override fun onResume() {
@@ -98,13 +105,10 @@ class PlayerActivity : AppCompatActivity() {
         super.onResume()
 
         hideSystemUi()
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M || mPlayer == null) {
-            initializePlayer()
-        }
+        initializePlayer(mContentsUriStr)
     }
 
-    private fun initializePlayer() {
+    private fun initializePlayer(uriString: String) {
         Log.d(TAG, "initializePlayer()")
 
         mPlayer = ExoPlayerFactory.newSimpleInstance(
@@ -115,7 +119,7 @@ class PlayerActivity : AppCompatActivity() {
             addListener(mPlayerEventListener)
             playWhenReady = mPlayWhenReady
             seekTo(mCurrentWindowIndex, mPlaybackPosition)
-            prepare(buildMediaSource(Uri.parse(getString(R.string.sample_url_mp4))),
+            prepare(buildMediaSource(Uri.parse(uriString)),
                 false,
                 false)
         }
@@ -174,18 +178,6 @@ class PlayerActivity : AppCompatActivity() {
 
         super.onPause()
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-            releasePlayer()
-        }
-    }
-
-    override fun onStop() {
-        Log.d(TAG, "onStop()")
-
-        super.onStop()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            releasePlayer()
-        }
+        releasePlayer()
     }
 }
